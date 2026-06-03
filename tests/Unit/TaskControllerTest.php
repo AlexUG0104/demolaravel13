@@ -80,3 +80,20 @@ test('El controlador de tareas elimina una tarea', function () {
     $response->assertNoContent();
     $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
 });
+
+test('El controlador de tareas marca una tarea como completada', function () {
+    $task = Task::factory()->create(['completed' => false]);
+
+    $response = $this->patchJson("/api/tasks/{$task->id}/complete");
+
+    $response->assertOk()
+        ->assertJsonFragment([
+            'id' => $task->id,
+            'completed' => true,
+        ]);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'completed' => 1,
+    ]);
+});
